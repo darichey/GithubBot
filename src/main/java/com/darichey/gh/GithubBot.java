@@ -36,8 +36,6 @@ final class GithubBot {
     }
 
     private Mono<Void> handleEvents(DiscordClient client, BotConfig config) {
-        ServiceMediator serviceMediator = getServiceMediator(client);
-
         Mono<Void> handleMessages = client.getEventDispatcher().on(MessageCreateEvent.class)
                 .filter(evt -> evt.getGuildId()
                         .map(Snowflake::asLong)
@@ -53,7 +51,7 @@ final class GithubBot {
                             .map(issueNum -> getUrl(config.getRepo(), issueNum))
                             .collect(Collectors.joining("\n"))
                             .filter(responseContent -> !(responseContent.isBlank() || responseContent.length() > 2000))
-                            .flatMap(responseContent -> sendMessage(serviceMediator, channel, responseContent));
+                            .flatMap(responseContent -> sendMessage(client.getServiceMediator(), channel, responseContent));
                 })
                 .onErrorContinue((t, o) -> {})
                 .then();
@@ -72,15 +70,5 @@ final class GithubBot {
 
     private static String getUrl(String repo, String issue) {
         return String.format("https://github.com/%s/issues/%s", repo, issue);
-    }
-
-    private static ServiceMediator getServiceMediator(DiscordClient client) {
-        try {
-            Field field = DiscordClient.class.getDeclaredField("serviceMediator");
-            field.setAccessible(true);
-            return (ServiceMediator) field.get(client);
-        } catch (NoSuchFieldException | IllegalAccessException e) {
-            throw new RuntimeException(e);
-        }
     }
 }
