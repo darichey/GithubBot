@@ -10,10 +10,11 @@ sourceCompatibility = 11
 
 repositories {
     mavenCentral()
+    maven { url "https://jitpack.io" }
 }
 
 dependencies {
-    implementation "com.discord4j:discord4j-core:3.0.5"
+    implementation 'com.discord4j.discord4j:discord4j-core:master-SNAPSHOT'
     implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.3'
 }
 
